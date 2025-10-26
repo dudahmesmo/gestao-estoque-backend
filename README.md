@@ -1,1 +1,11 @@
+# Sistema de Gestão de Estoque (Back-end)
+
 Este repositório contém o código-fonte da camada de serviço (back-end) do projeto da A3 da Unidade Curricular de Sistemas Distribuídos e Mobile. O objetivo deste projeto é desenvolver uma API RESTful em Java, utilizando o framework Spring Boot, para centralizar toda a lógica de negócio e persistência de dados do sistema de Gerenciamento de Empréstimo de Ferramentas. Este serviço será o "cérebro" do sistema e será consumido pela aplicação front-end.
+
+---
+
+### Integrantes:
+
+* Maria Eduarda Eduarda Souza dos Santos Ferreira
+* Millena Ferreira Rodrigues
+* Kaue Santana de Oliveira
