@@ -1,45 +1,58 @@
-package br.unisul.a3sdm.gestao_estoque_backend.controller;
+package br.unisul.a3sdm.gestao_estoque_backend.model;
 
-import java.util.List;
+import jakarta.persistence.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+@Entity
+@Table(name = "amigo")
+public class Amigo {
 
-import br.unisul.a3sdm.gestao_estoque_backend.model.Categoria;
-import br.unisul.a3sdm.gestao_estoque_backend.repository.CategoriaRepository;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-@RestController 
-@RequestMapping("/api/categorias") 
-public class CategoriaController {
+    private String nome;
 
-   
-    @Autowired
-    private CategoriaRepository categoriaRepository;
+    private String telefone;
 
-    /**
-     * Endpoint para listar todas as categorias.
-     * Mapeado para o método GET em /api/categorias
-     */
-    @GetMapping
-    public List<Categoria> listarTodas() {
-        
-        return categoriaRepository.findAll();
+    // opcional
+    private String email;
+
+    // construtores
+    public Amigo() {}
+
+    public Amigo(Long id, String nome, String telefone, String email) {
+        this.id = id;
+        this.nome = nome;
+        this.telefone = telefone;
+        this.email = email;
     }
 
-    /**
-     * Endpoint para criar uma nova categoria.
-     * Mapeado para o método POST em /api/categorias
-     */
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED) // Retorna o código HTTP 201 (Created)
-    public Categoria criarCategoria(@RequestBody Categoria categoria) {
-        
-        return categoriaRepository.save(categoria);
+    // getters e setters
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

@@ -1,36 +1,72 @@
-package br.unisul.a3sdm.gestao_estoque_backend.model;
+package br.unisul.a3sdm.gestao_estoque_backend.controller;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import br.unisul.a3sdm.gestao_estoque_backend.model.Amigo;
+import br.unisul.a3sdm.gestao_estoque_backend.repository.AmigoRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
+import org.springframework.web.bind.annotation.*;
 
-@Entity
-public class Categoria {
+import java.util.List;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@RestController
+@RequestMapping("/amigos")
+@CrossOrigin(origins = "*")
+public class AmigoController {
 
-    private String nome;
+    private final AmigoRepository repository;
 
-    public Categoria() {
+    public AmigoController(AmigoRepository repository) {
+        this.repository = repository;
     }
 
-    // Getters e Setters
-    public Long getId() {
-        return id;
+    @GetMapping
+    public List<Amigo> getAllAmigos() {
+        return repository.findAll();
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    @GetMapping("/{id}")
+    public ResponseEntity<Amigo> getAmigoById(@PathVariable @NonNull Long id) {
+        return repository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    public String getNome() {
-        return nome;
+    @PostMapping
+    public ResponseEntity<Amigo> createAmigo(@RequestBody @NonNull Amigo novoAmigo) {
+        Amigo salvo = repository.save(novoAmigo);
+        return ResponseEntity.ok(salvo);
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    @PutMapping("/{id}")
+    public ResponseEntity<Amigo> updateAmigo(@PathVariable @NonNull Long id,
+                                             @RequestBody @NonNull Amigo amigoAtualizado) {
+        return repository.findById(id)
+                .map(amigo -> {
+                    // atualiza apenas campos não nulos (evita sobrescrever com null)
+                    if (amigoAtualizado.getNome() != null) {
+                        amigo.setNome(amigoAtualizado.getNome());
+                    }
+                    if (amigoAtualizado.getTelefone() != null) {
+                        amigo.setTelefone(amigoAtualizado.getTelefone());
+                    }
+                    if (amigoAtualizado.getEmail() != null) {
+                        amigo.setEmail(amigoAtualizado.getEmail());
+                    }
+                   return ResponseEntity.ok(repository.save(amigo));
+
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAmigo(@PathVariable @NonNull Long id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
+
+
