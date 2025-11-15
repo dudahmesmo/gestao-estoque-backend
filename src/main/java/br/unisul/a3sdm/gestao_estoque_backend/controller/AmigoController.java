@@ -6,6 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -33,6 +36,8 @@ public class AmigoController {
 
     @PostMapping
     public ResponseEntity<Amigo> createAmigo(@RequestBody @NonNull Amigo novoAmigo) {
+        novoAmigo.setDataCadastro(LocalDateTime.now());
+            novoAmigo.setoDevedor(false);
         Amigo salvo = repository.save(novoAmigo);
         return ResponseEntity.ok(salvo);
     }
@@ -52,6 +57,8 @@ public class AmigoController {
                     if (amigoAtualizado.getEmail() != null) {
                         amigo.setEmail(amigoAtualizado.getEmail());
                     }
+                    amigo.setoDevedor(amigoAtualizado.getoDevedor());
+
                    return ResponseEntity.ok(repository.save(amigo));
 
                 })
@@ -67,6 +74,43 @@ public class AmigoController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    @GetMapping("/{id}/alerta-devedor")
+    public ResponseEntity<Map<String, Object>> verificarAlertaDevedor(@PathVariable @NonNull Long id) {
+        return repository.findById(id)
+                .map(amigo -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("amigoId", amigo.getId());
+                    response.put("nome", amigo.getNome());
+                    response.put("ehDevedor", amigo.getoDevedor());
+                    response.put("mensagem", amigo.getoDevedor() 
+                        ? "ALERTA: Este amigo está com pendências!" 
+                        : "Amigo em dia com os pagamentos");
+                    response.put("dataVerificacao", LocalDateTime.now());
+                    
+                    return ResponseEntity.ok(response);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/devedores")
+    public List<Amigo> getAmigosDevedores() {
+        return repository.findAll().stream()
+                .filter(amigo -> Boolean.TRUE.equals(amigo.getoDevedor()))
+                .toList();
+    }
+
+    @PatchMapping("/{id}/devedor")
+    public ResponseEntity<Amigo> toggleDevedor(@PathVariable @NonNull Long id, 
+                                              @RequestParam Boolean devedor) {
+        return repository.findById(id)
+                .map(amigo -> {
+                    amigo.setoDevedor(devedor);
+                    return ResponseEntity.ok(repository.save(amigo));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }
 
 

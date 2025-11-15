@@ -1,6 +1,7 @@
 package br.unisul.a3sdm.gestao_estoque_backend.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "amigo")
@@ -16,6 +17,12 @@ public class Amigo {
 
     // opcional
     private String email;
+    
+    @Column(name = "data_cadastro")
+    private LocalDateTime dataCadastro;
+    
+    @Column(name = "odevedor")
+    private Boolean oDevedor = false;
 
     // construtores
     public Amigo() {}
@@ -25,6 +32,8 @@ public class Amigo {
         this.nome = nome;
         this.telefone = telefone;
         this.email = email;
+        this.dataCadastro = LocalDateTime.now();
+        this.oDevedor = false;
     }
 
     // getters e setters
@@ -52,7 +61,24 @@ public class Amigo {
     public String getEmail() {
         return email;
     }
+    
     public void setEmail(String email) {
         this.email = email;
+    }
+    
+    public LocalDateTime getDataCadastro () {
+        return dataCadastro;
+    }
+    
+    public void setDataCadastro (LocalDateTime dataCadastro) {
+        this.dataCadastro = dataCadastro;
+    }
+    
+    public boolean  getoDevedor () {
+        return oDevedor;
+    }
+    
+    public void setoDevedor (boolean Devedor) {
+        this.oDevedor = oDevedor != null ? oDevedor : false;
     }
 }
