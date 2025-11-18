@@ -15,7 +15,7 @@ public class Ferramenta {
     private String marca;
 
     // campo quantidade que o repository usa
-    private Integer quantidade;
+    private double preco;
 
     private Boolean disponivel;
 
@@ -29,8 +29,8 @@ public class Ferramenta {
     public String getMarca() { return marca; }
     public void setMarca(String marca) { this.marca = marca; }
 
-    public Integer getQuantidade() { return quantidade; }
-    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
+    public double getPreco() { return preco; }
+    public void setPreco(Integer quantidade) { this.preco = quantidade; }
 
     public Boolean getDisponivel() { return disponivel; }
     public void setDisponivel(Boolean disponivel) { this.disponivel = disponivel; }
