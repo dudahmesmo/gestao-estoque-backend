@@ -5,5 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface FerramentaRepository extends JpaRepository<Ferramenta, Long> {
-    List<Ferramenta> findByQuantidadeGreaterThan(int quantidade);
+    
+    List<Ferramenta> findByDisponivelTrue();
+    
+    List<Ferramenta> findByPrecoLessThan(double preco);
+    
+    List<Ferramenta> findByMarcaContainingIgnoreCase(String marca);
 }

@@ -1,6 +1,7 @@
 package br.unisul.a3sdm.gestao_estoque_backend.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ferramenta")
@@ -14,10 +15,17 @@ public class Ferramenta {
 
     private String marca;
 
-    // campo quantidade que o repository usa
     private double preco;
 
     private Boolean disponivel;
+    
+     @Column(name = "data_cadastro")
+    private LocalDateTime dataCadastro;
+     
+      @PrePersist
+    protected void onCreate() {
+        dataCadastro = LocalDateTime.now();
+    }
 
     // getters e setters
     public Long getId() { return id; }
@@ -30,9 +38,12 @@ public class Ferramenta {
     public void setMarca(String marca) { this.marca = marca; }
 
     public double getPreco() { return preco; }
-    public void setPreco(Integer quantidade) { this.preco = quantidade; }
+    public void setPreco(double preco) { this.preco = preco; }
 
     public Boolean getDisponivel() { return disponivel; }
     public void setDisponivel(Boolean disponivel) { this.disponivel = disponivel; }
+    
+    public LocalDateTime getDataCadastro() {return dataCadastro; }
+    public void setDataCadastro(LocalDateTime dataCadastro) {this.dataCadastro = dataCadastro; }
 }
 
