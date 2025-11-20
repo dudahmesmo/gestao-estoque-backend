@@ -4,36 +4,44 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "ferramenta")
+@Table(name = "ferramentas")
 public class Ferramenta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_ferramenta")
     private Long id;
 
+    @Column(name = "nome_ferramenta", nullable = false)
     private String nome;
 
+    @Column(name = "marca_ferramenta")
     private String marca;
 
+    @Column(nullable = false)
     private double preco;
-    
-    private int quantidade_estoque;
-    
-    private int quantidade_minima;
-    
-    private int quantidade_maxima;
+
+    @Column(name = "quantidade_estoque", nullable = false)
+    private int quantidadeEstoque;
+
+    @Column(name = "quantidade_minima", nullable = false)
+    private int quantidadeMinima;
+
+    @Column(name = "quantidade_maxima", nullable = false)
+    private int quantidadeMaxima;
 
     private Boolean disponivel;
-    
-     @Column(name = "data_cadastro")
+
+    @Column(name = "data_cadastro")
     private LocalDateTime dataCadastro;
-     
-      @PrePersist
+
+    @PrePersist
     protected void onCreate() {
         dataCadastro = LocalDateTime.now();
     }
 
-    // getters e setters
+    // GETTERS E SETTERS ----------------------
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -45,20 +53,19 @@ public class Ferramenta {
 
     public double getPreco() { return preco; }
     public void setPreco(double preco) { this.preco = preco; }
-    
-    public int getQuantidade_estoque() { return quantidade_estoque; }
-    public void setQuantidade_estoque(int quantidade_estoque) { this.quantidade_estoque = quantidade_estoque; }
 
-    public int getQuantidade_minima() { return quantidade_minima; }
-    public void setQuantidade_minima(int quantidade_minima) { this.quantidade_minima = quantidade_minima; }
+    public int getQuantidadeEstoque() { return quantidadeEstoque; }
+    public void setQuantidadeEstoque(int quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
 
-    public int getQuantidade_maxima() { return quantidade_maxima; }
-    public void setQuantidade_maxima(int quantidade_maxima) { this.quantidade_maxima = quantidade_maxima; }
+    public int getQuantidadeMinima() { return quantidadeMinima; }
+    public void setQuantidadeMinima(int quantidadeMinima) { this.quantidadeMinima = quantidadeMinima; }
+
+    public int getQuantidadeMaxima() { return quantidadeMaxima; }
+    public void setQuantidadeMaxima(int quantidadeMaxima) { this.quantidadeMaxima = quantidadeMaxima; }
 
     public Boolean getDisponivel() { return disponivel; }
     public void setDisponivel(Boolean disponivel) { this.disponivel = disponivel; }
-    
-    public LocalDateTime getDataCadastro() {return dataCadastro; }
-    public void setDataCadastro(LocalDateTime dataCadastro) {this.dataCadastro = dataCadastro; }
-}
 
+    public LocalDateTime getDataCadastro() { return dataCadastro; }
+    public void setDataCadastro(LocalDateTime dataCadastro) { this.dataCadastro = dataCadastro; }
+}
