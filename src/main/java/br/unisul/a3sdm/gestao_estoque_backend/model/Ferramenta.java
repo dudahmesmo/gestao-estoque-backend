@@ -18,6 +18,7 @@ public class Ferramenta {
     @Column(name = "marca_ferramenta")
     private String marca;
 
+<<<<<<< HEAD
     @Column(nullable = false)
     private double preco;
 
@@ -42,6 +43,32 @@ public class Ferramenta {
 
     // GETTERS E SETTERS ----------------------
 
+=======
+    private Double preco;
+
+    private Integer quantidade;
+
+    private Integer quantidadeEstoque;
+    private Integer quantidadeMinimaEstoque;
+    private Integer quantidadeMaximaEstoque;
+
+    @Column(name = "emprestada")
+    private Boolean emprestada = false;
+
+    @Column(name = "data_cadastro")
+    private LocalDateTime dataCadastro = LocalDateTime.now();
+
+    private Boolean disponivel = true;
+
+    @ManyToOne
+    @JoinColumn(name = "id_categoria", referencedColumnName = "id")
+    private Categoria categoria;
+
+    public Ferramenta() {}
+
+    // GETTERS E SETTERS
+
+>>>>>>> develop
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -51,6 +78,7 @@ public class Ferramenta {
     public String getMarca() { return marca; }
     public void setMarca(String marca) { this.marca = marca; }
 
+<<<<<<< HEAD
     public double getPreco() { return preco; }
     public void setPreco(double preco) { this.preco = preco; }
 
@@ -62,10 +90,37 @@ public class Ferramenta {
 
     public int getQuantidadeMaxima() { return quantidadeMaxima; }
     public void setQuantidadeMaxima(int quantidadeMaxima) { this.quantidadeMaxima = quantidadeMaxima; }
+=======
+    public Double getPreco() { return preco; }
+    public void setPreco(Double preco) { this.preco = preco; }
+
+    public Integer getQuantidade() { return quantidade; }
+    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
+
+    public Integer getQuantidadeEstoque() { return quantidadeEstoque; }
+    public void setQuantidadeEstoque(Integer quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
+
+    public Integer getQuantidadeMinimaEstoque() { return quantidadeMinimaEstoque; }
+    public void setQuantidadeMinimaEstoque(Integer quantidadeMinimaEstoque) { this.quantidadeMinimaEstoque = quantidadeMinimaEstoque; }
+
+    public Integer getQuantidadeMaximaEstoque() { return quantidadeMaximaEstoque; }
+    public void setQuantidadeMaximaEstoque(Integer quantidadeMaximaEstoque) { this.quantidadeMaximaEstoque = quantidadeMaximaEstoque; }
+
+    public Boolean getEmprestada() { return emprestada; }
+    public void setEmprestada(Boolean emprestada) { this.emprestada = emprestada; }
+
+    public LocalDateTime getDataCadastro() { return dataCadastro; }
+    public void setDataCadastro(LocalDateTime dataCadastro) { this.dataCadastro = dataCadastro; }
+>>>>>>> develop
 
     public Boolean getDisponivel() { return disponivel; }
     public void setDisponivel(Boolean disponivel) { this.disponivel = disponivel; }
 
+<<<<<<< HEAD
     public LocalDateTime getDataCadastro() { return dataCadastro; }
     public void setDataCadastro(LocalDateTime dataCadastro) { this.dataCadastro = dataCadastro; }
+=======
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
+>>>>>>> develop
 }
