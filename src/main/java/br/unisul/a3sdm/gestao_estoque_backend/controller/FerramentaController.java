@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,22 +17,22 @@ public class FerramentaController {
     @Autowired
     private FerramentaRepository ferramentaRepository;
 
-// CADASTRAR - Com data automática e validação de devedor
+    // CADASTRAR
     @PostMapping
     public ResponseEntity<?> createFerramenta(@RequestBody Ferramenta ferramenta) {
         try {
-            
-            if (ferramenta.getPreco() < 0) {
-                return ResponseEntity.badRequest().body("ALERTA: Não é permitido cadastrar ferramentas com preço negativo.");
+
+            if (ferramenta.getPreco() != null && ferramenta.getPreco() < 0) {
+                return ResponseEntity.badRequest().body("ALERTA: Não é permitido preço negativo.");
             }
-            
+
             if (ferramenta.getNome() == null || ferramenta.getNome().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("O campo 'nome' é obrigatório.");
             }
-            
+
             Ferramenta savedFerramenta = ferramentaRepository.save(ferramenta);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedFerramenta);
-            
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erro ao cadastrar ferramenta: " + e.getMessage());
@@ -43,62 +42,36 @@ public class FerramentaController {
     // LISTAR TODOS
     @GetMapping
     public ResponseEntity<List<Ferramenta>> getAllFerramentas() {
-        try {
-            List<Ferramenta> ferramentas = ferramentaRepository.findAll();
-            return ResponseEntity.ok(ferramentas);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.ok(ferramentaRepository.findAll());
     }
 
     // LISTAR POR ID
     @GetMapping("/{id}")
     public ResponseEntity<Ferramenta> getFerramentaById(@PathVariable Long id) {
-        try {
-            Optional<Ferramenta> ferramenta = ferramentaRepository.findById(id);
-            return ferramenta.map(ResponseEntity::ok)
-                           .orElse(ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        Optional<Ferramenta> ferramenta = ferramentaRepository.findById(id);
+        return ferramenta.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     // EXCLUIR
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteFerramenta(@PathVariable Long id) {
-        try {
-            if (!ferramentaRepository.existsById(id)) {
-                return ResponseEntity.notFound().build();
-            }
-            
-            ferramentaRepository.deleteById(id);
-            return ResponseEntity.ok("Ferramenta excluída com sucesso!");
-            
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao excluir ferramenta: " + e.getMessage());
+        if (!ferramentaRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
         }
+
+        ferramentaRepository.deleteById(id);
+        return ResponseEntity.ok("Ferramenta excluída com sucesso!");
     }
 
-    // LISTAR DISPONÍVEIS
+    // DISPONÍVEIS
     @GetMapping("/disponiveis")
     public ResponseEntity<List<Ferramenta>> getFerramentasDisponiveis() {
-        try {
-            List<Ferramenta> disponiveis = ferramentaRepository.findByDisponivelTrue();
-            return ResponseEntity.ok(disponiveis);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.ok(ferramentaRepository.findByDisponivelTrue());
     }
 
-    // NOVO ENDPOINT: Listar ferramentas com alerta de devedor (preço negativo)
+    // ALERTA DE PREÇO NEGATIVO
     @GetMapping("/alerta-devedores")
     public ResponseEntity<List<Ferramenta>> getFerramentasComAlertaDevedor() {
-        try {
-            List<Ferramenta> devedores = ferramentaRepository.findByPrecoLessThan(0.0);
-            return ResponseEntity.ok(devedores);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.ok(ferramentaRepository.findByPrecoLessThan(0.0));
     }
 }

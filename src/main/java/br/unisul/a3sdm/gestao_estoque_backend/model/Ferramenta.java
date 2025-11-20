@@ -15,25 +15,30 @@ public class Ferramenta {
 
     private String marca;
 
-    private double preco;
-    
-    private int quantidade_estoque;
-    
-    private int quantidade_minima;
-    
-    private int quantidade_maxima;
+    private Double preco;
 
-    private Boolean disponivel;
-    
-     @Column(name = "data_cadastro")
-    private LocalDateTime dataCadastro;
-     
-      @PrePersist
-    protected void onCreate() {
-        dataCadastro = LocalDateTime.now();
-    }
+    private Integer quantidade;
 
-    // getters e setters
+    private Integer quantidadeEstoque;
+    private Integer quantidadeMinimaEstoque;
+    private Integer quantidadeMaximaEstoque;
+
+    @Column(name = "emprestada")
+    private Boolean emprestada = false;
+
+    @Column(name = "data_cadastro")
+    private LocalDateTime dataCadastro = LocalDateTime.now();
+
+    private Boolean disponivel = true;
+
+    @ManyToOne
+    @JoinColumn(name = "id_categoria", referencedColumnName = "id")
+    private Categoria categoria;
+
+    public Ferramenta() {}
+
+    // GETTERS E SETTERS
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -43,22 +48,30 @@ public class Ferramenta {
     public String getMarca() { return marca; }
     public void setMarca(String marca) { this.marca = marca; }
 
-    public double getPreco() { return preco; }
-    public void setPreco(double preco) { this.preco = preco; }
-    
-    public int getQuantidade_estoque() { return quantidade_estoque; }
-    public void setQuantidade_estoque(int quantidade_estoque) { this.quantidade_estoque = quantidade_estoque; }
+    public Double getPreco() { return preco; }
+    public void setPreco(Double preco) { this.preco = preco; }
 
-    public int getQuantidade_minima() { return quantidade_minima; }
-    public void setQuantidade_minima(int quantidade_minima) { this.quantidade_minima = quantidade_minima; }
+    public Integer getQuantidade() { return quantidade; }
+    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
 
-    public int getQuantidade_maxima() { return quantidade_maxima; }
-    public void setQuantidade_maxima(int quantidade_maxima) { this.quantidade_maxima = quantidade_maxima; }
+    public Integer getQuantidadeEstoque() { return quantidadeEstoque; }
+    public void setQuantidadeEstoque(Integer quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
+
+    public Integer getQuantidadeMinimaEstoque() { return quantidadeMinimaEstoque; }
+    public void setQuantidadeMinimaEstoque(Integer quantidadeMinimaEstoque) { this.quantidadeMinimaEstoque = quantidadeMinimaEstoque; }
+
+    public Integer getQuantidadeMaximaEstoque() { return quantidadeMaximaEstoque; }
+    public void setQuantidadeMaximaEstoque(Integer quantidadeMaximaEstoque) { this.quantidadeMaximaEstoque = quantidadeMaximaEstoque; }
+
+    public Boolean getEmprestada() { return emprestada; }
+    public void setEmprestada(Boolean emprestada) { this.emprestada = emprestada; }
+
+    public LocalDateTime getDataCadastro() { return dataCadastro; }
+    public void setDataCadastro(LocalDateTime dataCadastro) { this.dataCadastro = dataCadastro; }
 
     public Boolean getDisponivel() { return disponivel; }
     public void setDisponivel(Boolean disponivel) { this.disponivel = disponivel; }
-    
-    public LocalDateTime getDataCadastro() {return dataCadastro; }
-    public void setDataCadastro(LocalDateTime dataCadastro) {this.dataCadastro = dataCadastro; }
-}
 
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
+}
