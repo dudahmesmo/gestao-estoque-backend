@@ -15,9 +15,9 @@ public interface AmigoRepository extends JpaRepository<Amigo, Long> {
     
     List<Amigo> findByNomeContainingIgnoreCase(String nome);
     
-    List<Amigo> findByoDevedorFalse();
+    List<Amigo> findByODevedorFalse();
     
-    List<Amigo> findByoDevedorTrue();
+    List<Amigo> findByODevedorTrue();
     
     Optional<Amigo> findByTelefone(String telefone);
     
