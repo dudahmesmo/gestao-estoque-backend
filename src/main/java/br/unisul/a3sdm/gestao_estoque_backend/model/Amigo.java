@@ -15,16 +15,14 @@ public class Amigo {
 
     private String telefone;
 
-    // opcional
     private String email;
-    
+
     @Column(name = "data_cadastro")
     private LocalDateTime dataCadastro;
-    
+
     @Column(name = "odevedor")
     private Boolean oDevedor = false;
 
-    // construtores
     public Amigo() {}
 
     public Amigo(Long id, String nome, String telefone, String email) {
@@ -36,7 +34,8 @@ public class Amigo {
         this.oDevedor = false;
     }
 
-    // getters e setters
+    // GETTERS E SETTERS CORRETOS
+
     public Long getId() {
         return id;
     }
@@ -61,24 +60,21 @@ public class Amigo {
     public String getEmail() {
         return email;
     }
-    
     public void setEmail(String email) {
         this.email = email;
     }
-    
-    public LocalDateTime getDataCadastro () {
+
+    public LocalDateTime getDataCadastro() {
         return dataCadastro;
     }
-    
-    public void setDataCadastro (LocalDateTime dataCadastro) {
+    public void setDataCadastro(LocalDateTime dataCadastro) {
         this.dataCadastro = dataCadastro;
     }
-    
-    public boolean  getoDevedor () {
+
+    public Boolean getODevedor() {
         return oDevedor;
     }
-    
-    public void setoDevedor (boolean Devedor) {
-        this.oDevedor = oDevedor != null ? oDevedor : false;
+    public void setODevedor(Boolean oDevedor) {
+        this.oDevedor = (oDevedor != null) ? oDevedor : false;
     }
 }
