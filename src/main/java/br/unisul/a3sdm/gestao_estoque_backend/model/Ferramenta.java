@@ -57,6 +57,12 @@ public class Ferramenta {
     public Integer getQuantidadeEstoque() { return quantidadeEstoque; }
     public void setQuantidadeEstoque(Integer quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
 
+    public Integer getQuantidadeMinima() { return quantidadeMinimaEstoque; }
+    public void setQuantidadeMinima(Integer quantidadeMinima) { this.quantidadeMinimaEstoque = quantidadeMinima; }
+
+    public Integer getQuantidadeMaxima() { return quantidadeMaximaEstoque; }
+    public void setQuantidadeMaxima(Integer quantidadeMaxima) { this.quantidadeMaximaEstoque = quantidadeMaxima; }
+
     public Integer getQuantidadeMinimaEstoque() { return quantidadeMinimaEstoque; }
     public void setQuantidadeMinimaEstoque(Integer quantidadeMinimaEstoque) { this.quantidadeMinimaEstoque = quantidadeMinimaEstoque; }
 

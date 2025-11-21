@@ -6,12 +6,16 @@ import br.unisul.a3sdm.gestao_estoque_backend.model.Ferramenta;
 import br.unisul.a3sdm.gestao_estoque_backend.repository.EmprestimoRepository;
 import br.unisul.a3sdm.gestao_estoque_backend.repository.AmigoRepository;
 import br.unisul.a3sdm.gestao_estoque_backend.repository.FerramentaRepository;
+import br.unisul.a3sdm.gestao_estoque_backend.service.FerramentaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -22,13 +26,17 @@ public class EmprestimoController {
     private final EmprestimoRepository repository;
     private final AmigoRepository amigoRepository;
     private final FerramentaRepository ferramentaRepository;
+    private final FerramentaService ferramentaService; 
+
 
     public EmprestimoController(EmprestimoRepository repository, 
                               AmigoRepository amigoRepository,
-                              FerramentaRepository ferramentaRepository) {
+                              FerramentaRepository ferramentaRepository,
+                              FerramentaService ferramentaService) {
         this.repository = repository;
         this.amigoRepository = amigoRepository;
         this.ferramentaRepository = ferramentaRepository;
+        this.ferramentaService = ferramentaService;
     }
 
     @GetMapping
@@ -44,14 +52,15 @@ public class EmprestimoController {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<?> create(@RequestBody @NonNull Emprestimo novo) {
         try {
-            // Lógica 1: Data automática - definir data do empréstimo como data atual
+            // Data automática
             if (novo.getDataEmprestimo() == null) {
                 novo.setDataEmprestimo(LocalDate.now());
             }
             
-            // Lógica 2: Verificar se o amigo existe
+            // Verificar se o amigo existe
             if (novo.getAmigo() == null || novo.getAmigo().getId() == null) {
                 return ResponseEntity.badRequest().body("Amigo é obrigatório");
             }
@@ -61,7 +70,7 @@ public class EmprestimoController {
                 return ResponseEntity.badRequest().body("Amigo não encontrado");
             }
             
-            // Lógica 3: Verificar se a ferramenta existe
+            // Verificar se a ferramenta existe
             if (novo.getFerramenta() == null || novo.getFerramenta().getId() == null) {
                 return ResponseEntity.badRequest().body("Ferramenta é obrigatória");
             }
@@ -71,7 +80,22 @@ public class EmprestimoController {
                 return ResponseEntity.badRequest().body("Ferramenta não encontrada");
             }
             
-            // Lógica 4: Alerta de devedor - verificar se amigo tem empréstimos em atraso
+
+            // LÓGICA DE ESTOQUE (Saída/Empréstimo)
+
+            // Chama o serviço para diminuir o estoque. O serviço verifica se estoque > 0
+            ferramentaService.diminuirEstoque(novo.getFerramenta().getId());
+
+            // Busca objeto atualizado
+            Ferramenta ferramentaAtualizada = ferramentaRepository.findById(novo.getFerramenta().getId()).get();
+
+            // O serviço verifica o alerta
+            String alertaEstoque = ferramentaService.verificarAlertaEstoque(ferramentaAtualizada);
+
+
+
+            
+            // Alerta de devedor - verificar se amigo tem empréstimos em atraso
             List<Emprestimo> emprestimosAtraso = repository.findByAmigoAndAtivoTrueAndDataDevolucaoIsNullOrDataDevolucaoBefore(
                 amigoOpt.get(), LocalDate.now());
             
@@ -79,11 +103,21 @@ public class EmprestimoController {
                 System.out.println("ALERTA: Amigo " + amigoOpt.get().getNome() + 
                                  " possui " + emprestimosAtraso.size() + " empréstimos em atraso!");
             }
+
             novo.setAtivo(true);
             
             // Salvar o empréstimo
             Emprestimo salvo = repository.save(novo);
-            return ResponseEntity.ok(salvo);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("emprestimo", salvo);
+            response.put("alerta_estoque", alertaEstoque); // Adiciona o alerta à resposta
+
+            return ResponseEntity.ok(response);
+
+        } catch (RuntimeException e) {
+             // Captura a exceção lançada pelo FerramentaService (Ex: "Ferramenta está fora de estoque.")
+             return ResponseEntity.badRequest().body(e.getMessage());
             
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erro ao criar empréstimo: " + e.getMessage());
@@ -136,12 +170,31 @@ public class EmprestimoController {
     }
 
     @PutMapping("/{id}/devolver")
-    public ResponseEntity<Emprestimo> devolver(@PathVariable @NonNull Long id) {
+    @Transactional
+    public ResponseEntity<?> devolver(@PathVariable @NonNull Long id) { // Retorna Map<?> para incluir alerta
         return repository.findById(id)
                 .map(e -> {
-                    e.setDataDevolucao(LocalDate.now());
-                    e.setAtivo(false);
-                    return ResponseEntity.ok(repository.save(e));
+                    try {
+                       
+                        ferramentaService.aumentarEstoque(e.getFerramenta().getId());
+                    
+                        e.setDataDevolucao(LocalDate.now());
+                        e.setAtivo(false);
+                        Emprestimo devolvido = repository.save(e);
+                        
+                        Ferramenta ferramentaAtualizada = ferramentaRepository.findById(e.getFerramenta().getId()).get();
+                        
+                        String alertaEstoque = ferramentaService.verificarAlertaEstoque(ferramentaAtualizada);
+                        
+                        Map<String, Object> response = new HashMap<>();
+                        response.put("emprestimo", devolvido);
+                        response.put("alerta_estoque", alertaEstoque);
+                        
+                        return ResponseEntity.ok(response);
+                        
+                    } catch (RuntimeException re) {
+                         return ResponseEntity.badRequest().body(re.getMessage());
+                    }
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
