@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -53,7 +55,7 @@ public class EmprestimoController {
     @Transactional
     public ResponseEntity<?> create(@RequestBody @NonNull Emprestimo novo) {
         try {
-            // Data automática - definir data do empréstimo como data atual
+            // Data automática
             if (novo.getDataEmprestimo() == null) {
                 novo.setDataEmprestimo(LocalDate.now());
             }
@@ -79,10 +81,19 @@ public class EmprestimoController {
             }
             
 
-            // Lógica de Estoque (Saída/Empréstimo)
-            // Chama o serviço para diminuir o estoque. O serviço verifica se estoque > 0
+            // LÓGICA DE ESTOQUE (Saída/Empréstimo)
 
+            // Chama o serviço para diminuir o estoque. O serviço verifica se estoque > 0
             ferramentaService.diminuirEstoque(novo.getFerramenta().getId());
+
+            // Busca objeto atualizado
+            Ferramenta ferramentaAtualizada = ferramentaRepository.findById(novo.getFerramenta().getId()).get();
+
+            // O serviço verifica o alerta
+            String alertaEstoque = ferramentaService.verificarAlertaEstoque(ferramentaAtualizada);
+
+
+
             
             // Alerta de devedor - verificar se amigo tem empréstimos em atraso
             List<Emprestimo> emprestimosAtraso = repository.findByAmigoAndAtivoTrueAndDataDevolucaoIsNullOrDataDevolucaoBefore(
@@ -97,7 +108,12 @@ public class EmprestimoController {
             
             // Salvar o empréstimo
             Emprestimo salvo = repository.save(novo);
-            return ResponseEntity.ok(salvo);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("emprestimo", salvo);
+            response.put("alerta_estoque", alertaEstoque); // Adiciona o alerta à resposta
+
+            return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {
              // Captura a exceção lançada pelo FerramentaService (Ex: "Ferramenta está fora de estoque.")
@@ -155,12 +171,30 @@ public class EmprestimoController {
 
     @PutMapping("/{id}/devolver")
     @Transactional
-    public ResponseEntity<Emprestimo> devolver(@PathVariable @NonNull Long id) {
+    public ResponseEntity<?> devolver(@PathVariable @NonNull Long id) { // Retorna Map<?> para incluir alerta
         return repository.findById(id)
                 .map(e -> {
-                    e.setDataDevolucao(LocalDate.now());
-                    e.setAtivo(false);
-                    return ResponseEntity.ok(repository.save(e));
+                    try {
+                       
+                        ferramentaService.aumentarEstoque(e.getFerramenta().getId());
+                    
+                        e.setDataDevolucao(LocalDate.now());
+                        e.setAtivo(false);
+                        Emprestimo devolvido = repository.save(e);
+                        
+                        Ferramenta ferramentaAtualizada = ferramentaRepository.findById(e.getFerramenta().getId()).get();
+                        
+                        String alertaEstoque = ferramentaService.verificarAlertaEstoque(ferramentaAtualizada);
+                        
+                        Map<String, Object> response = new HashMap<>();
+                        response.put("emprestimo", devolvido);
+                        response.put("alerta_estoque", alertaEstoque);
+                        
+                        return ResponseEntity.ok(response);
+                        
+                    } catch (RuntimeException re) {
+                         return ResponseEntity.badRequest().body(re.getMessage());
+                    }
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
