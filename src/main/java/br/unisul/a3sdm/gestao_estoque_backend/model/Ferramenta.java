@@ -1,7 +1,6 @@
 package br.unisul.a3sdm.gestao_estoque_backend.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ferramenta")
@@ -17,17 +16,14 @@ public class Ferramenta {
 
     private Double preco;
 
-    private Integer quantidade;
-
+    @Column(name = "quantidade_estoque")
     private Integer quantidadeEstoque;
+
+    @Column(name = "quantidade_minima_estoque")
     private Integer quantidadeMinimaEstoque;
+
+    @Column(name = "quantidade_maxima_estoque")
     private Integer quantidadeMaximaEstoque;
-
-    @Column(name = "emprestada")
-    private Boolean emprestada = false;
-
-    @Column(name = "data_cadastro")
-    private LocalDateTime dataCadastro = LocalDateTime.now();
 
     private Boolean disponivel = true;
 
@@ -38,7 +34,6 @@ public class Ferramenta {
     public Ferramenta() {}
 
     // GETTERS E SETTERS
-
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -50,9 +45,6 @@ public class Ferramenta {
 
     public Double getPreco() { return preco; }
     public void setPreco(Double preco) { this.preco = preco; }
-
-    public Integer getQuantidade() { return quantidade; }
-    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
 
     public Integer getQuantidadeEstoque() { return quantidadeEstoque; }
     public void setQuantidadeEstoque(Integer quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
@@ -68,12 +60,6 @@ public class Ferramenta {
 
     public Integer getQuantidadeMaximaEstoque() { return quantidadeMaximaEstoque; }
     public void setQuantidadeMaximaEstoque(Integer quantidadeMaximaEstoque) { this.quantidadeMaximaEstoque = quantidadeMaximaEstoque; }
-
-    public Boolean getEmprestada() { return emprestada; }
-    public void setEmprestada(Boolean emprestada) { this.emprestada = emprestada; }
-
-    public LocalDateTime getDataCadastro() { return dataCadastro; }
-    public void setDataCadastro(LocalDateTime dataCadastro) { this.dataCadastro = dataCadastro; }
 
     public Boolean getDisponivel() { return disponivel; }
     public void setDisponivel(Boolean disponivel) { this.disponivel = disponivel; }

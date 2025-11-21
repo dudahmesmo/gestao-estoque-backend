@@ -48,7 +48,7 @@ public class AmigoController {
     @PostMapping
     public ResponseEntity<Amigo> createAmigo(@RequestBody @NonNull Amigo novoAmigo) {
         novoAmigo.setDataCadastro(LocalDateTime.now());
-            novoAmigo.setoDevedor(false);
+        novoAmigo.setODevedor(false);
         Amigo salvo = repository.save(novoAmigo);
         return ResponseEntity.ok(salvo);
     }
@@ -58,7 +58,6 @@ public class AmigoController {
                                              @RequestBody @NonNull Amigo amigoAtualizado) {
         return repository.findById(id)
                 .map(amigo -> {
-                    // atualiza apenas campos não nulos (evita sobrescrever com null)
                     if (amigoAtualizado.getNome() != null) {
                         amigo.setNome(amigoAtualizado.getNome());
                     }
@@ -68,10 +67,10 @@ public class AmigoController {
                     if (amigoAtualizado.getEmail() != null) {
                         amigo.setEmail(amigoAtualizado.getEmail());
                     }
-                    amigo.setoDevedor(amigoAtualizado.getoDevedor());
 
-                   return ResponseEntity.ok(repository.save(amigo));
+                    amigo.setODevedor(amigoAtualizado.getODevedor());
 
+                    return ResponseEntity.ok(repository.save(amigo));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -95,7 +94,7 @@ public class AmigoController {
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-    
+
     @GetMapping("/{id}/alerta-devedor")
     public ResponseEntity<Map<String, Object>> verificarAlertaDevedor(@PathVariable @NonNull Long id) {
         return repository.findById(id)
@@ -103,12 +102,12 @@ public class AmigoController {
                     Map<String, Object> response = new HashMap<>();
                     response.put("amigoId", amigo.getId());
                     response.put("nome", amigo.getNome());
-                    response.put("ehDevedor", amigo.getoDevedor());
-                    response.put("mensagem", amigo.getoDevedor() 
-                        ? "ALERTA: Este amigo está com pendências!" 
-                        : "Amigo em dia com os pagamentos");
+                    response.put("ehDevedor", amigo.getODevedor());
+                    response.put("mensagem", amigo.getODevedor()
+                            ? "ALERTA: Este amigo está com pendências!"
+                            : "Amigo em dia com os pagamentos");
                     response.put("dataVerificacao", LocalDateTime.now());
-                    
+
                     return ResponseEntity.ok(response);
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -117,21 +116,18 @@ public class AmigoController {
     @GetMapping("/devedores")
     public List<Amigo> getAmigosDevedores() {
         return repository.findAll().stream()
-                .filter(amigo -> Boolean.TRUE.equals(amigo.getoDevedor()))
+                .filter(amigo -> Boolean.TRUE.equals(amigo.getODevedor()))
                 .toList();
     }
 
     @PatchMapping("/{id}/devedor")
-    public ResponseEntity<Amigo> toggleDevedor(@PathVariable @NonNull Long id, 
-                                              @RequestParam Boolean devedor) {
+    public ResponseEntity<Amigo> toggleDevedor(@PathVariable @NonNull Long id,
+                                               @RequestParam Boolean devedor) {
         return repository.findById(id)
                 .map(amigo -> {
-                    amigo.setoDevedor(devedor);
+                    amigo.setODevedor(devedor);
                     return ResponseEntity.ok(repository.save(amigo));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
-
 }
-
-
