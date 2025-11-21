@@ -87,11 +87,11 @@ public class AmigoController {
             // Se possui, retorna um erro 400 (Bad Request) com a mensagem
             Map<String, String> erro = new HashMap<>();
             erro.put("mensagem", "Não é possível excluir o amigo, pois ele possui empréstimos ativos. É necessário devolver as ferramentas primeiro.");
-            // Retorna o status 400, o frontend captura e exibe a mensagem
+            // Retorna o status 400, o Front-end deve capturar e exibir esta mensagem
             return ResponseEntity.badRequest().body(erro);
         }
 
-        // Exclusão: Se não há pendências, exclui o amigo.
+        // Exclusao: Se não há pendências, exclui o amigo.
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
     }

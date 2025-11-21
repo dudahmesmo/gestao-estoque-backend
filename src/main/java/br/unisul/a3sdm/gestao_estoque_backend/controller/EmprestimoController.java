@@ -6,9 +6,11 @@ import br.unisul.a3sdm.gestao_estoque_backend.model.Ferramenta;
 import br.unisul.a3sdm.gestao_estoque_backend.repository.EmprestimoRepository;
 import br.unisul.a3sdm.gestao_estoque_backend.repository.AmigoRepository;
 import br.unisul.a3sdm.gestao_estoque_backend.repository.FerramentaRepository;
+import br.unisul.a3sdm.gestao_estoque_backend.service.FerramentaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,13 +24,17 @@ public class EmprestimoController {
     private final EmprestimoRepository repository;
     private final AmigoRepository amigoRepository;
     private final FerramentaRepository ferramentaRepository;
+    private final FerramentaService ferramentaService; 
+
 
     public EmprestimoController(EmprestimoRepository repository, 
                               AmigoRepository amigoRepository,
-                              FerramentaRepository ferramentaRepository) {
+                              FerramentaRepository ferramentaRepository,
+                              FerramentaService ferramentaService) {
         this.repository = repository;
         this.amigoRepository = amigoRepository;
         this.ferramentaRepository = ferramentaRepository;
+        this.ferramentaService = ferramentaService;
     }
 
     @GetMapping
@@ -44,14 +50,15 @@ public class EmprestimoController {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<?> create(@RequestBody @NonNull Emprestimo novo) {
         try {
-            // Lógica 1: Data automática - definir data do empréstimo como data atual
+            // Data automática - definir data do empréstimo como data atual
             if (novo.getDataEmprestimo() == null) {
                 novo.setDataEmprestimo(LocalDate.now());
             }
             
-            // Lógica 2: Verificar se o amigo existe
+            // Verificar se o amigo existe
             if (novo.getAmigo() == null || novo.getAmigo().getId() == null) {
                 return ResponseEntity.badRequest().body("Amigo é obrigatório");
             }
@@ -61,7 +68,7 @@ public class EmprestimoController {
                 return ResponseEntity.badRequest().body("Amigo não encontrado");
             }
             
-            // Lógica 3: Verificar se a ferramenta existe
+            // Verificar se a ferramenta existe
             if (novo.getFerramenta() == null || novo.getFerramenta().getId() == null) {
                 return ResponseEntity.badRequest().body("Ferramenta é obrigatória");
             }
@@ -71,7 +78,13 @@ public class EmprestimoController {
                 return ResponseEntity.badRequest().body("Ferramenta não encontrada");
             }
             
-            // Lógica 4: Alerta de devedor - verificar se amigo tem empréstimos em atraso
+
+            // Lógica de Estoque (Saída/Empréstimo)
+            // Chama o serviço para diminuir o estoque. O serviço verifica se estoque > 0
+
+            ferramentaService.diminuirEstoque(novo.getFerramenta().getId());
+            
+            // Alerta de devedor - verificar se amigo tem empréstimos em atraso
             List<Emprestimo> emprestimosAtraso = repository.findByAmigoAndAtivoTrueAndDataDevolucaoIsNullOrDataDevolucaoBefore(
                 amigoOpt.get(), LocalDate.now());
             
@@ -79,11 +92,16 @@ public class EmprestimoController {
                 System.out.println("ALERTA: Amigo " + amigoOpt.get().getNome() + 
                                  " possui " + emprestimosAtraso.size() + " empréstimos em atraso!");
             }
+
             novo.setAtivo(true);
             
             // Salvar o empréstimo
             Emprestimo salvo = repository.save(novo);
             return ResponseEntity.ok(salvo);
+
+        } catch (RuntimeException e) {
+             // Captura a exceção lançada pelo FerramentaService (Ex: "Ferramenta está fora de estoque.")
+             return ResponseEntity.badRequest().body(e.getMessage());
             
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erro ao criar empréstimo: " + e.getMessage());
@@ -136,6 +154,7 @@ public class EmprestimoController {
     }
 
     @PutMapping("/{id}/devolver")
+    @Transactional
     public ResponseEntity<Emprestimo> devolver(@PathVariable @NonNull Long id) {
         return repository.findById(id)
                 .map(e -> {
