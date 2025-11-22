@@ -198,4 +198,45 @@ public class EmprestimoController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    
+    // MÉTODOS PARA RELATÓRIO DE HISTÓRICO (NOVOS)
+
+    @GetMapping("/relatorios/mais-emprestadas")
+    public ResponseEntity<List<Object[]>> getFerramentasMaisEmprestadas() {
+        // Retorna a lista bruta de [Nome da Ferramenta, Total de Empréstimos]
+        List<Object[]> resultados = repository.findFerramentaMaisEmprestada();
+        
+        if (resultados.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(resultados);
+    }
+
+    @GetMapping("/relatorios/mais-devolvidas")
+    public ResponseEntity<List<Object[]>> getFerramentasMaisDevolvidas() {
+        // Retorna a lista bruta de [Nome da Ferramenta, Total de Devoluções]
+        List<Object[]> resultados = repository.findFerramentaMaisDevolvida();
+        
+        if (resultados.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(resultados);
+    }
+
+    /**
+     * Retorna uma lista de amigos que têm empréstimos em atraso (devedores).
+     * Usa o repositório para buscar empréstimos em atraso e extrai os Amigos únicos.
+     */
+    @GetMapping("/relatorios/devedores-em-atraso")
+    public List<Amigo> getDevedoresEmAtraso() {
+         
+        List<Emprestimo> emprestimosEmAtraso = repository.findByAtivoTrueAndDataDevolucaoIsNullOrDataDevolucaoBefore(LocalDate.now());
+
+        // Extrai os objetos Amigo únicos da lista de empréstimos
+        return emprestimosEmAtraso.stream()
+                .map(Emprestimo::getAmigo)
+                .distinct() // Garante que cada amigo apareça apenas uma vez
+                .toList();
+    }
 }

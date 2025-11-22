@@ -6,6 +6,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
+import java.util.ArrayList; 
+import java.util.HashMap; 
+import java.util.List; 
+import java.util.Map;
+
 @Service
 public class FerramentaService {
 
@@ -97,5 +102,52 @@ public class FerramentaService {
         }
         
         return "Estoque OK";
+    }
+
+    
+    // MÉTODO PARA RELATÓRIO DE CUSTO TOTAL 
+
+    /**
+     * Método que calcula o custo total por ferramenta e o custo total geral do estoque.
+     * Usado para o Relatório de Ferramentas e Custos.
+     * @return Map<String, Object> contendo a lista detalhada e o total geral.
+     */
+    public Map<String, Object> calcularCustoTotalEstoque() {
+        
+        // 1. Buscar todas as ferramentas
+        List<Ferramenta> todasFerramentas = repository.findAll();
+        double custoTotalGeral = 0.0;
+        
+        // 2. Processar cada ferramenta e calcular seu custo total individual
+        List<Map<String, Object>> detalhes = new ArrayList<>();
+
+        for (Ferramenta f : todasFerramentas) {
+            // Garante que o valor não é null
+            int quantidade = f.getQuantidadeEstoque() != null ? f.getQuantidadeEstoque() : 0;
+            double custoUnitario = f.getPreco() != null ? f.getPreco() : 0.0;
+            
+            // CÁLCULO CRÍTICO: Custo Total = Custo Unitário x Qtd. em Estoque
+            double custoTotalFerramenta = custoUnitario * quantidade;
+            
+            // Acumular o total geral
+            custoTotalGeral += custoTotalFerramenta;
+            
+            
+            Map<String, Object> detalhe = new HashMap<>();
+            detalhe.put("id", f.getId());
+            detalhe.put("nome", f.getNome());
+            detalhe.put("quantidade_em_estoque", quantidade);
+            detalhe.put("custo_unitario", custoUnitario);
+            detalhe.put("custo_total_ferramenta", custoTotalFerramenta);
+            
+            detalhes.add(detalhe);
+        }
+        
+        // 3. Construir a resposta final
+        Map<String, Object> resultado = new HashMap<>();
+        resultado.put("detalhes_ferramentas", detalhes);
+        resultado.put("custo_total_geral", custoTotalGeral);
+        
+        return resultado;
     }
 }
