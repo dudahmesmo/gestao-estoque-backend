@@ -223,4 +223,20 @@ public class EmprestimoController {
         }
         return ResponseEntity.ok(resultados);
     }
+
+    /**
+     * Retorna uma lista de amigos que têm empréstimos em atraso (devedores).
+     * Usa o repositório para buscar empréstimos em atraso e extrai os Amigos únicos.
+     */
+    @GetMapping("/relatorios/devedores-em-atraso")
+    public List<Amigo> getDevedoresEmAtraso() {
+         
+        List<Emprestimo> emprestimosEmAtraso = repository.findByAtivoTrueAndDataDevolucaoIsNullOrDataDevolucaoBefore(LocalDate.now());
+
+        // Extrai os objetos Amigo únicos da lista de empréstimos
+        return emprestimosEmAtraso.stream()
+                .map(Emprestimo::getAmigo)
+                .distinct() // Garante que cada amigo apareça apenas uma vez
+                .toList();
+    }
 }
