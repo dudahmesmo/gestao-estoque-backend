@@ -1,7 +1,13 @@
 package br.unisul.a3sdm.gestao_estoque_backend.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "amigo")
@@ -21,7 +27,7 @@ public class Amigo {
     private LocalDateTime dataCadastro;
 
     @Column(name = "odevedor")
-    private Boolean oDevedor = false;
+    private Boolean ODevedor = false;
 
     public Amigo() {}
 
@@ -31,7 +37,7 @@ public class Amigo {
         this.telefone = telefone;
         this.email = email;
         this.dataCadastro = LocalDateTime.now();
-        this.oDevedor = false;
+        this.ODevedor = false;
     }
 
     // GETTERS E SETTERS CORRETOS
@@ -72,9 +78,9 @@ public class Amigo {
     }
 
     public Boolean getODevedor() {
-        return oDevedor;
+        return ODevedor;
     }
     public void setODevedor(Boolean oDevedor) {
-        this.oDevedor = (oDevedor != null) ? oDevedor : false;
+        this.ODevedor = (oDevedor != null) ? oDevedor : false;
     }
 }
