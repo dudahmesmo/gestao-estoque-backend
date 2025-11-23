@@ -1,7 +1,6 @@
 package br.unisul.a3sdm.gestao_estoque_backend.model;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "ferramenta")
@@ -19,35 +18,21 @@ public class Ferramenta {
     private Double preco;
 
     @Column(name = "quantidade_estoque")
-    private Integer quantidadeEstoque = 0;
+    private Integer quantidadeEstoque;
 
     @Column(name = "quantidade_minima_estoque")
-    private Integer quantidadeMinimaEstoque = 1;
+    private Integer quantidadeMinimaEstoque;
 
     @Column(name = "quantidade_maxima_estoque")
-    private Integer quantidadeMaximaEstoque = 100;
+    private Integer quantidadeMaximaEstoque;
 
     private Boolean disponivel = true;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "id_categoria", referencedColumnName = "id")
-    @JsonIgnoreProperties("ferramentas") // Evita recursão infinita no JSON
     private Categoria categoria;
 
     public Ferramenta() {}
-
-    // Construtor com parâmetros
-    public Ferramenta(String nome, String marca, Double preco, Integer quantidadeEstoque, 
-                     Integer quantidadeMinima, Integer quantidadeMaxima, Categoria categoria) {
-        this.nome = nome;
-        this.marca = marca;
-        this.preco = preco;
-        this.quantidadeEstoque = quantidadeEstoque;
-        this.quantidadeMinimaEstoque = quantidadeMinima;
-        this.quantidadeMaximaEstoque = quantidadeMaxima;
-        this.categoria = categoria;
-        this.disponivel = quantidadeEstoque > 0;
-    }
 
     // GETTERS E SETTERS
     public Long getId() { return id; }
@@ -63,68 +48,23 @@ public class Ferramenta {
     public void setPreco(Double preco) { this.preco = preco; }
 
     public Integer getQuantidadeEstoque() { return quantidadeEstoque; }
-    public void setQuantidadeEstoque(Integer quantidadeEstoque) { 
-        this.quantidadeEstoque = quantidadeEstoque; 
-        // Atualiza automaticamente a disponibilidade
-        if (this.quantidadeEstoque != null && this.quantidadeEstoque <= 0) {
-            this.disponivel = false;
-        } else {
-            this.disponivel = true;
-        }
-    }
+    public void setQuantidadeEstoque(Integer quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
+
+    public Integer getQuantidadeMinima() { return quantidadeMinimaEstoque; }
+    public void setQuantidadeMinima(Integer quantidadeMinima) { this.quantidadeMinimaEstoque = quantidadeMinima; }
+
+    public Integer getQuantidadeMaxima() { return quantidadeMaximaEstoque; }
+    public void setQuantidadeMaxima(Integer quantidadeMaxima) { this.quantidadeMaximaEstoque = quantidadeMaxima; }
 
     public Integer getQuantidadeMinimaEstoque() { return quantidadeMinimaEstoque; }
-    public void setQuantidadeMinimaEstoque(Integer quantidadeMinimaEstoque) { 
-        this.quantidadeMinimaEstoque = quantidadeMinimaEstoque; 
-    }
+    public void setQuantidadeMinimaEstoque(Integer quantidadeMinimaEstoque) { this.quantidadeMinimaEstoque = quantidadeMinimaEstoque; }
 
     public Integer getQuantidadeMaximaEstoque() { return quantidadeMaximaEstoque; }
-    public void setQuantidadeMaximaEstoque(Integer quantidadeMaximaEstoque) { 
-        this.quantidadeMaximaEstoque = quantidadeMaximaEstoque; 
-    }
+    public void setQuantidadeMaximaEstoque(Integer quantidadeMaximaEstoque) { this.quantidadeMaximaEstoque = quantidadeMaximaEstoque; }
 
     public Boolean getDisponivel() { return disponivel; }
     public void setDisponivel(Boolean disponivel) { this.disponivel = disponivel; }
 
     public Categoria getCategoria() { return categoria; }
     public void setCategoria(Categoria categoria) { this.categoria = categoria; }
-
-    // MÉTODOS DE NEGÓCIO
-    public boolean isEstoqueBaixo() {
-        return quantidadeEstoque != null && quantidadeMinimaEstoque != null 
-            && quantidadeEstoque <= quantidadeMinimaEstoque;
-    }
-
-    public boolean isEstoqueExcedido() {
-        return quantidadeEstoque != null && quantidadeMaximaEstoque != null 
-            && quantidadeEstoque > quantidadeMaximaEstoque;
-    }
-
-    public String getStatusEstoque() {
-        if (quantidadeEstoque == null || quantidadeEstoque <= 0) {
-            return "FORA DE ESTOQUE";
-        } else if (isEstoqueBaixo()) {
-            return "ESTOQUE BAIXO (" + quantidadeEstoque + " unidades)";
-        } else if (isEstoqueExcedido()) {
-            return "ESTOQUE EXCEDIDO (" + quantidadeEstoque + " unidades)";
-        } else {
-            return quantidadeEstoque + " unidades (OK)";
-        }
-    }
-
-    // Métodos de conveniência para compatibilidade com o front-end
-    public String getNomeCategoria() {
-        return categoria != null ? categoria.getNome() : "Sem categoria";
-    }
-
-    @Override
-    public String toString() {
-        return "Ferramenta{" +
-                "id=" + id +
-                ", nome='" + nome + '\'' +
-                ", marca='" + marca + '\'' +
-                ", preco=" + preco +
-                ", categoria=" + (categoria != null ? categoria.getNome() : "N/A") +
-                '}';
-    }
 }
