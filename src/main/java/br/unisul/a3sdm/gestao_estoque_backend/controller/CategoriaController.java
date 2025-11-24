@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.unisul.a3sdm.gestao_estoque_backend.model.Categoria;
-import br.unisul.a3sdm.gestao_estoque_backend.repository.CategoriaRepository;
+import br.unisul.a3sdm.gestao_estoque_backend.service.CategoriaService;
 
 @RestController
 @RequestMapping("/categorias")
 @CrossOrigin(origins = "*") 
 public class CategoriaController {
 
-    private final CategoriaRepository repository;
+    private final CategoriaService categoriaService;
 
-    public CategoriaController(CategoriaRepository repository) {
-        this.repository = repository;
+    public CategoriaController(CategoriaService categoriaService) {
+        this.categoriaService = categoriaService;
     }
 
     // 1. CADASTRAR (POST)
@@ -35,20 +35,20 @@ public class CategoriaController {
         if (novaCategoria.getNome() == null || novaCategoria.getNome().trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        Categoria salva = repository.save(novaCategoria);
+        Categoria salva = categoriaService.save(novaCategoria);
         return ResponseEntity.status(HttpStatus.CREATED).body(salva);
     }
 
     // 2. LISTAR TODOS (GET)
     @GetMapping
     public List<Categoria> getAllCategorias() {
-        return repository.findAll();
+        return categoriaService.findAll();
     }
 
     // 3. BUSCAR POR ID (GET)
     @GetMapping("/{id}")
     public ResponseEntity<Categoria> getCategoriaById(@PathVariable @NonNull Long id) {
-        return repository.findById(id)
+        return categoriaService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -57,12 +57,12 @@ public class CategoriaController {
     @PutMapping("/{id}")
     public ResponseEntity<Categoria> updateCategoria(@PathVariable @NonNull Long id, 
                                                     @RequestBody @NonNull Categoria categoriaAtualizada) {
-        return repository.findById(id)
+        return categoriaService.findById(id)
                 .map(categoria -> {
                     if (categoriaAtualizada.getNome() != null) {
                         categoria.setNome(categoriaAtualizada.getNome());
                     }
-                    return ResponseEntity.ok(repository.save(categoria));
+                    return ResponseEntity.ok(categoriaService.save(categoria));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -70,8 +70,8 @@ public class CategoriaController {
     // 5. EXCLUIR (DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategoria(@PathVariable @NonNull Long id) {
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
+        if (categoriaService.existsById(id)) {
+            categoriaService.deleteById(id);
             return ResponseEntity.noContent().build(); // Retorna 204
         } else {
             return ResponseEntity.notFound().build();
