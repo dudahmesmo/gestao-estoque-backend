@@ -11,4 +11,8 @@ public interface FerramentaRepository extends JpaRepository<Ferramenta, Long> {
     List<Ferramenta> findByPrecoLessThan(Double preco);
 
     List<Ferramenta> findByMarcaContainingIgnoreCase(String marca);
+
+    List<Ferramenta> findByCategoriaId(Long categoriaId);
+
+    List<Ferramenta> findByCategoriaIsNull();
 }

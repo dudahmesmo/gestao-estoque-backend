@@ -150,4 +150,12 @@ public class FerramentaService {
         
         return resultado;
     }
+    
+        public List<Ferramenta> findByCategoriaId(Long categoriaId) {
+            return repository.findByCategoriaId(categoriaId);
+        }
+
+        public List<Ferramenta> findSemCategoria() {
+            return repository.findByCategoriaIsNull();
+        }
 }
