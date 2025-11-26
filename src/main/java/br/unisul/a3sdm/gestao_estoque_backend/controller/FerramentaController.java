@@ -30,7 +30,7 @@ public class FerramentaController {
         this.categoriaService = categoriaService;
     }
 
-    // CADASTRAR (ATUALIZADO COM VALIDAÇÃO DE CATEGORIA)
+    // 1. CADASTRAR (POST)
     @PostMapping
     public ResponseEntity<?> createFerramenta(@RequestBody Ferramenta ferramenta) {
         try {
@@ -44,26 +44,33 @@ public class FerramentaController {
                 return ResponseEntity.badRequest().body("ALERTA: Não é permitido preço negativo.");
             }
 
-            // Validação da categoria (se foi informada)
-            if (ferramenta.getCategoria() != null && ferramenta.getCategoria().getId() != null) {
-                Optional<Categoria> categoriaExistente = categoriaService.findById(ferramenta.getCategoria().getId());
-                if (categoriaExistente.isEmpty()) {
-                    return ResponseEntity.badRequest().body("Categoria não encontrada com ID: " + ferramenta.getCategoria().getId());
+            if (ferramenta.getCategoria() != null && ferramenta.getCategoria().getNome() != null) {
+                String nomeCategoria = ferramenta.getCategoria().getNome();
+                
+                Optional<Categoria> categoriaExistente = categoriaService.findByNome(nomeCategoria); 
+                
+                if (categoriaExistente.isPresent()) {
+                    ferramenta.setCategoria(categoriaExistente.get());
+                } else {
+                    return ResponseEntity.badRequest().body("Categoria não encontrada com nome: " + nomeCategoria);
                 }
-                // Garante que a categoria tenha todos os dados corretos
-                ferramenta.setCategoria(categoriaExistente.get());
+            } else {
+                 ferramenta.setCategoria(null);
             }
 
             Ferramenta savedFerramenta = ferramentaRepository.save(ferramenta);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedFerramenta);
 
         } catch (Exception e) {
+            // Mensagem de erro
+            System.err.println("Erro no cadastro de Ferramenta: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao cadastrar ferramenta: " + e.getMessage());
+                    .body("Erro no cadastro de ferramenta. Causa: " + e.getMessage());
         }
     }
 
-    // ATUALIZAR FERRAMENTA (NOVO ENDPOINT - IMPORTANTE PARA EDITAR CATEGORIA)
+    // 2. ATUALIZAR FERRAMENTA (PUT)
     @PutMapping("/{id}")
     public ResponseEntity<?> updateFerramenta(@PathVariable Long id, @RequestBody Ferramenta ferramentaAtualizada) {
         try {
@@ -87,6 +94,7 @@ public class FerramentaController {
                 }
                 ferramenta.setPreco(ferramentaAtualizada.getPreco());
             }
+            
             if (ferramentaAtualizada.getQuantidadeEstoque() != null) {
                 ferramenta.setQuantidadeEstoque(ferramentaAtualizada.getQuantidadeEstoque());
             }
@@ -101,18 +109,19 @@ public class FerramentaController {
             }
 
             // Validação e atualização da categoria
-            if (ferramentaAtualizada.getCategoria() != null) {
-                if (ferramentaAtualizada.getCategoria().getId() != null) {
-                    Optional<Categoria> categoriaExistente = categoriaService.findById(ferramentaAtualizada.getCategoria().getId());
-                    if (categoriaExistente.isEmpty()) {
-                        return ResponseEntity.badRequest().body("Categoria não encontrada com ID: " + ferramentaAtualizada.getCategoria().getId());
-                    }
+            if (ferramentaAtualizada.getCategoria() != null && ferramentaAtualizada.getCategoria().getNome() != null) {
+                String nomeCategoria = ferramentaAtualizada.getCategoria().getNome();
+                Optional<Categoria> categoriaExistente = categoriaService.findByNome(nomeCategoria); 
+
+                if (categoriaExistente.isPresent()) {
                     ferramenta.setCategoria(categoriaExistente.get());
                 } else {
-                    // Se a categoria não tem ID, remove a categoria da ferramenta
-                    ferramenta.setCategoria(null);
+                    return ResponseEntity.badRequest().body("Categoria não encontrada com nome: " + nomeCategoria);
                 }
+            } else {
+                ferramenta.setCategoria(null);
             }
+
 
             Ferramenta ferramentaSalva = ferramentaRepository.save(ferramenta);
             return ResponseEntity.ok(ferramentaSalva);
@@ -122,18 +131,35 @@ public class FerramentaController {
                     .body("Erro ao atualizar ferramenta: " + e.getMessage());
         }
     }
+    
+    // 3. REGISTRAR DEVOLUÇÃO (PUT) 
+    @PutMapping("/devolver/{id}")
+    public ResponseEntity<?> registrarDevolucao(@PathVariable Long id) {
+        try {
+            Ferramenta ferramenta = ferramentaService.devolverFerramenta(id);
+            return ResponseEntity.ok("Devolução registrada com sucesso para: " + ferramenta.getNome());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao registrar devolução: " + e.getMessage());
+        }
+    }
 
+
+    // 4. LISTAR TODOS (GET)
     @GetMapping
     public ResponseEntity<List<Ferramenta>> getAllFerramentas() {
         return ResponseEntity.ok(ferramentaRepository.findAll());
     }
 
+    // 5. BUSCAR POR ID (GET)
     @GetMapping("/{id}")
     public ResponseEntity<Ferramenta> getFerramentaById(@PathVariable Long id) {
         Optional<Ferramenta> ferramenta = ferramentaRepository.findById(id);
         return ferramenta.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
+    // 6. DELETAR (DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteFerramenta(@PathVariable Long id) {
         if (!ferramentaRepository.existsById(id)) {
@@ -144,16 +170,21 @@ public class FerramentaController {
         return ResponseEntity.ok("Ferramenta excluída com sucesso!");
     }
 
+    // 7. LISTAR DISPONÍVEIS (GET)
     @GetMapping("/disponiveis")
     public ResponseEntity<List<Ferramenta>> getFerramentasDisponiveis() {
         return ResponseEntity.ok(ferramentaRepository.findByDisponivelTrue());
     }
 
+    // 8. RELATÓRIO ALERTA DEVEDORES (GET) 
     @GetMapping("/alerta-devedores")
-    public ResponseEntity<List<Ferramenta>> getFerramentasComAlertaDevedor() {
-        return ResponseEntity.ok(ferramentaRepository.findByPrecoLessThan(0.0));
+    public ResponseEntity<Void> getFerramentasComAlertaDevedor() {
+        return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
+                .header("Location", "/emprestimos/relatorios/devedores-em-atraso")
+                .build();
     }
 
+    // 9. RELATÓRIO CUSTO TOTAL (GET)
     @GetMapping("/relatorios/custo-total")
     public ResponseEntity<Map<String, Object>> getCustoTotalEstoque() {
         try {
