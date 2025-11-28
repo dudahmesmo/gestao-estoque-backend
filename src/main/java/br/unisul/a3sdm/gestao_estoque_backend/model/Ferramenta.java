@@ -27,11 +27,6 @@ public class Ferramenta {
     @Id
     @GeneratedValue (strategy = GenerationType. IDENTITY)
     private Long id;
-<<<<<<< HEAD
-
-    @Column(nullable = false)
-=======
->>>>>>> develop
     private String nome;
     private String marca;
     private Double preco;
