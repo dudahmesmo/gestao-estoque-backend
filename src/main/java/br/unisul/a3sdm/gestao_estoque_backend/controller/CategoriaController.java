@@ -72,7 +72,7 @@ public class CategoriaController {
     public ResponseEntity<Void> deleteCategoria(@PathVariable @NonNull Long id) {
         if (categoriaService.existsById(id)) {
             categoriaService.deleteById(id);
-            return ResponseEntity.noContent().build(); // Retorna 204
+            return ResponseEntity.noContent().build(); 
         } else {
             return ResponseEntity.notFound().build();
         }

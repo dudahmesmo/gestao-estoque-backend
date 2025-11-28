@@ -1,19 +1,23 @@
 package br.unisul.a3sdm.gestao_estoque_backend.model;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators; 
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.ManyToOne; 
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table; 
 @Entity
 @Table (name = "ferramenta")
 @JsonIdentityInfo (generator =
@@ -42,6 +46,10 @@ public class Ferramenta {
     @JsonBackReference 
     private Categoria categoria;
     
+    @OneToMany(mappedBy = "ferramenta", cascade = CascadeType.ALL)
+    @JsonManagedReference("emprestimos-ferramenta") 
+    private List<Emprestimo> emprestimos;
+    
     public Ferramenta () {}
     
     // GETTERS E SETTERS 
@@ -63,8 +71,8 @@ public class Ferramenta {
     @JsonProperty("Quantidade_estoque")
     public void setQuantidadeEstoque (Integer quantidadeEstoque) {
         this.quantidadeEstoque = quantidadeEstoque;
-    }    
-   
+    } 
+    
     @JsonProperty("Quantidade_minima")
     public Integer getQuantidadeMinimaEstoque () { return quantidadeMinimaEstoque; }
     
@@ -80,7 +88,6 @@ public class Ferramenta {
     public void setQuantidadeMaximaEstoque (Integer quantidadeMaximaEstoque) { 
         this.quantidadeMaximaEstoque = quantidadeMaximaEstoque;
     }
-
     
     public Integer getQuantidadeMinima () { return quantidadeMinimaEstoque; }
     public void setQuantidadeMinima (Integer quantidadeMinima) { this.quantidadeMinimaEstoque = quantidadeMinima; }
@@ -92,4 +99,12 @@ public class Ferramenta {
     
     public Categoria getCategoria() { return categoria; }
     public void setCategoria (Categoria categoria) { this.categoria = categoria; }
+    
+    public List<Emprestimo> getEmprestimos() {
+        return emprestimos;
+    }
+
+    public void setEmprestimos(List<Emprestimo> emprestimos) {
+        this.emprestimos = emprestimos;
+    }
 }

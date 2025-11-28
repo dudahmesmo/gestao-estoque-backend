@@ -21,11 +21,8 @@ public class FerramentaService {
         this.repository = repository;
     }
 
-    // MÉTODOS DE CONTROLE DE ESTOQUE
-    /**
-     * Diminui a quantidade em estoque de uma ferramenta ao registrar
-     * um empréstimo.
-     */
+
+    // Diminui a quantidade em estoque de uma ferramenta ao registrar um empréstimo. 
     @Transactional
     public void diminuirEstoque (Long id) {
         Optional<Ferramenta> optionalFerramenta =
@@ -50,10 +47,7 @@ public class FerramentaService {
         repository.save(ferramenta);
     }
     
-    /**
-     * Aumenta a quantidade em estoque de uma ferramenta ao registrar
-     * uma devolução.
-     */
+    // Aumenta a quantidade em estoque de uma ferramenta ao registrar uma devolução.
     @Transactional
     public void aumentarEstoque (Long id) {
         Optional<Ferramenta> optionalFerramenta =
@@ -86,7 +80,6 @@ public class FerramentaService {
     }
 
     /**
-     * Chamado pelo FerramentaController para registrar a devolução.
      * @param id
      * @return Ferramenta atualizada.
      */
@@ -154,7 +147,6 @@ public class FerramentaService {
                     : 0.0;
 
             // Custo Total
-            // custoTotalFerramenta = Custo Unitário x Qtd. em Estoque
             double custoTotalFerramenta = custoUnitario * quantidade;
 
             // Acumular o total geral
@@ -170,7 +162,6 @@ public class FerramentaService {
             detalhes.add(detalhe);
         }
 
-        // 3. Construir a resposta final
         Map<String, Object> resultado = new HashMap<>();
         resultado.put("detalhes_ferramentas", detalhes);
         resultado.put("custo_total_geral", custoTotalGeral);
