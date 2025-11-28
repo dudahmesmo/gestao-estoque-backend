@@ -36,4 +36,9 @@ public class CategoriaService {
     public boolean existsById(Long id) {
         return repository.existsById(id);
     }
+    
+    // Busca a Categoria pelo nome 
+    public Optional<Categoria> findByNome(String nome) {
+        return repository.findByNome(nome);
+    }
 }
