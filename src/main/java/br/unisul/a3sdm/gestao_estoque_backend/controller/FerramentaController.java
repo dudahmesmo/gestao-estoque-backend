@@ -1,18 +1,26 @@
 package br.unisul.a3sdm.gestao_estoque_backend.controller;
 
-import br.unisul.a3sdm.gestao_estoque_backend.model.Ferramenta;
-import br.unisul.a3sdm.gestao_estoque_backend.model.Categoria;
-import br.unisul.a3sdm.gestao_estoque_backend.repository.FerramentaRepository;
-import br.unisul.a3sdm.gestao_estoque_backend.service.CategoriaService;
-import br.unisul.a3sdm.gestao_estoque_backend.service.FerramentaService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import br.unisul.a3sdm.gestao_estoque_backend.model.Categoria;
+import br.unisul.a3sdm.gestao_estoque_backend.model.Ferramenta;
+import br.unisul.a3sdm.gestao_estoque_backend.repository.FerramentaRepository;
+import br.unisul.a3sdm.gestao_estoque_backend.service.CategoriaService;
+import br.unisul.a3sdm.gestao_estoque_backend.service.FerramentaService;
 
 @RestController
 @RequestMapping("/ferramentas")
@@ -195,5 +203,11 @@ public class FerramentaController {
             erro.put("mensagem", "Erro ao gerar relatório de custos: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
         }
+    }
+
+    // RELATÓRIO QUANTIDADE POR CATEGORIA (GET)
+    @GetMapping("/relatorios/quantidade-por-categoria")
+    public List<Object[]> getQuantidadeProdutosPorCategoria() {
+        return ferramentaRepository.findQuantidadeProdutosPorCategoria();
     }
 }
