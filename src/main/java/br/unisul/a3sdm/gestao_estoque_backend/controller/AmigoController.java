@@ -80,6 +80,7 @@ public class AmigoController {
         if (!repository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
+        
 
         // Checa se o amigo tem empréstimos ativos
         if (repository.hasEmprestimosAtivos(id)) {
@@ -89,6 +90,7 @@ public class AmigoController {
             // Retorna o status 400, o Front-end deve capturar e exibir esta mensagem
             return ResponseEntity.badRequest().body(erro);
         }
+        
 
         // Exclusao: Se não há pendências, exclui o amigo.
         repository.deleteById(id);

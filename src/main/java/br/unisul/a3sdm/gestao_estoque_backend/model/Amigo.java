@@ -1,12 +1,17 @@
 package br.unisul.a3sdm.gestao_estoque_backend.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -28,6 +33,10 @@ public class Amigo {
 
     @Column(name = "odevedor")
     private Boolean ODevedor = false;
+    
+    @OneToMany(mappedBy = "amigo", cascade = CascadeType.ALL)
+    @JsonManagedReference("emprestimos-amigo") 
+    private List<Emprestimo> emprestimos;
 
     public Amigo() {}
 
@@ -40,7 +49,7 @@ public class Amigo {
         this.ODevedor = false;
     }
 
-    // GETTERS E SETTERS CORRETOS
+    // GETTERS E SETTERS
 
     public Long getId() {
         return id;
@@ -82,5 +91,13 @@ public class Amigo {
     }
     public void setODevedor(Boolean oDevedor) {
         this.ODevedor = (oDevedor != null) ? oDevedor : false;
+    }
+    
+    public List<Emprestimo> getEmprestimos() {
+        return emprestimos;
+    }
+
+    public void setEmprestimos(List<Emprestimo> emprestimos) {
+        this.emprestimos = emprestimos;
     }
 }
