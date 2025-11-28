@@ -1,11 +1,12 @@
 package br.unisul.a3sdm.gestao_estoque_backend.service;
 
-import br.unisul.a3sdm.gestao_estoque_backend.model.Categoria;
-import br.unisul.a3sdm.gestao_estoque_backend.repository.CategoriaRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import br.unisul.a3sdm.gestao_estoque_backend.model.Categoria;
+import br.unisul.a3sdm.gestao_estoque_backend.repository.CategoriaRepository;
 
 @Service
 public class CategoriaService {
@@ -34,5 +35,10 @@ public class CategoriaService {
 
     public boolean existsById(Long id) {
         return repository.existsById(id);
+    }
+    
+    // Busca a Categoria pelo nome 
+    public Optional<Categoria> findByNome(String nome) {
+        return repository.findByNome(nome);
     }
 }

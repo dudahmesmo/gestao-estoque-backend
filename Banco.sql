@@ -1,6 +1,6 @@
--- Nome do banco de dados: standard
+-- Nome do banco de dados: gestao_estoque
 -- Usuario: root
--- Senha: root
+-- Senha: DataBaseA3
 
 CREATE TABLE amigos (
     id_amigo INT AUTO_INCREMENT PRIMARY KEY,

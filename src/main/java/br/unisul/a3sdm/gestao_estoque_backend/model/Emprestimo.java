@@ -1,7 +1,17 @@
 package br.unisul.a3sdm.gestao_estoque_backend.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import jakarta.persistence.Column; 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "emprestimos")
@@ -13,14 +23,21 @@ public class Emprestimo {
 
     @ManyToOne
     @JoinColumn(name = "amigo_id")
+    @JsonBackReference("emprestimos-amigo") 
     private Amigo amigo;
 
     @ManyToOne
     @JoinColumn(name = "ferramenta_id")
+    @JsonBackReference("emprestimos-ferramenta") 
     private Ferramenta ferramenta;
 
+    @Column(name = "data_emprestimo", nullable = true) 
     private LocalDate dataEmprestimo;
-    private LocalDate dataDevolucao;
+    
+    // Garante que a data de devolução (real) possa ser NULL para empréstimos ativos
+    @Column(name = "data_devolucao", nullable = true)
+    private LocalDate dataDevolucao; 
+    
     private boolean ativo;
 
     public Emprestimo() {}
